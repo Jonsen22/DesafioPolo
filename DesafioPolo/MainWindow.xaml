@@ -1,0 +1,23 @@
+﻿<Window x:Class="DesafioPolo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesafioPolo"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="199*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <DataGrid HorizontalAlignment="Center" Height="255" Margin="0,114,0,0" VerticalAlignment="Top" Width="564" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+        <ComboBox HorizontalAlignment="Left" Height="25" Margin="116,64,0,0" VerticalAlignment="Top" Width="99"/>
+        <DatePicker HorizontalAlignment="Left" Height="25" Margin="255,64,0,0" VerticalAlignment="Top" Width="143"/>
+        <DatePicker HorizontalAlignment="Left" Height="25" Margin="427,64,0,0" VerticalAlignment="Top" Width="143"/>
+        <Label Content="Indicador&#xD;&#xA;" HorizontalAlignment="Left" Margin="116,38,0,0" VerticalAlignment="Top" Width="79" Height="26"/>
+        <Label Content="Data Inicial" HorizontalAlignment="Left" Margin="255,38,0,0" VerticalAlignment="Top" Width="143" Height="26"/>
+        <Label Content="Indicador&#xA;Data Final" HorizontalAlignment="Left" Margin="427,38,0,0" VerticalAlignment="Top" Width="108" Height="26"/>
+
+    </Grid>
+</Window>
