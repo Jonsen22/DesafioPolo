@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="View\" />
-    <Folder Include="ViewModels\" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

@@ -8,14 +8,14 @@ namespace DesafioPolo.Model
 {
     public class IndicadorModel
     {
-        public string Indicador { get; set; }
-        public DateTime Data { get; set; }
-        public string DataReferencia { get; set; }
-        public decimal Media { get; set; }
-        public decimal Mediana { get; set; }
-        public decimal DesvioPadrao { get; set; }
-        public decimal Minimo { get; set; }
-        public decimal Maximo { get; set; }
+        public string? Indicador { get; set; }
+        public DateOnly Data { get; set; }
+        public string? DataReferencia { get; set; }
+        public double Media { get; set; }
+        public double Mediana { get; set; }
+        public double DesvioPadrao { get; set; }
+        public double Minimo { get; set; }
+        public double Maximo { get; set; }
         public int? NumeroRespondentes { get; set; }
         public int BaseCalculo { get; set; }
     }

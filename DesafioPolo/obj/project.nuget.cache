@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "lmXjrX5N3yda94soLTXdx+95USSfaDfGC6mGTYQlAMNdkTphgfEW7HOPx+RFj8DfHACtNE09KzgEk7MYXys1FQ==",
+  "dgSpecHash": "1828zOch1Quj+cykkw6bNL3kvY/Gf/P2raVzrSVMMyNnuRmAEryldrr/Je+4XD1g2k3XH8DvwyS9N40eDuSJ1A==",
   "success": true,
   "projectFilePath": "D:\\Projetos\\Desafio Polo Capital\\DesafioPolo\\DesafioPolo\\DesafioPolo.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Gabriel\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
   "logs": []
 }
