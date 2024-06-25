@@ -23,3 +23,5 @@ D:\Projetos\Desafio Polo Capital\DesafioPolo\DesafioPolo\obj\Debug\net8.0-window
 D:\Projetos\Desafio Polo Capital\DesafioPolo\DesafioPolo\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
 D:\Projetos\Desafio Polo Capital\DesafioPolo\DesafioPolo\obj\Debug\net8.0-windows\DesafioPolo.csproj.AssemblyReference.cache
 D:\Projetos\Desafio Polo Capital\DesafioPolo\DesafioPolo\obj\Debug\net8.0-windows\DesafioPolo.csproj.CopyComplete
+D:\Projetos\Desafio Polo Capital\DesafioPolo\DesafioPolo\obj\Debug\net8.0-windows\View\GraphView.g.cs
+D:\Projetos\Desafio Polo Capital\DesafioPolo\DesafioPolo\obj\Debug\net8.0-windows\View\GraphView.baml

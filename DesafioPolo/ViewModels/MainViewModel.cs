@@ -1,9 +1,11 @@
 ﻿using DesafioPolo.Model;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -53,6 +55,8 @@ namespace DesafioPolo.ViewModels
             }
         }
 
+
+
         public ObservableCollection<IndicadorModel> Indicadores
         {
             get { return _indicadores; }
@@ -66,18 +70,41 @@ namespace DesafioPolo.ViewModels
         }
 
         public ICommand LoadDataCommand { get; }
+        public ICommand ExportarCsvCommand { get; set; }
 
         public MainViewModel()
         {
             LoadDataCommand = new RelayCommand(async param => await LoadDataAsync(), param => CanExecuteLoadData());
             Indicadores = new ObservableCollection<IndicadorModel>();
-            IndicadorTipos = new ObservableCollection<string>
-            {
-                "IPCA",
-                "IGP-M",
-                "Selic"
-            };
+            ExportarCsvCommand = new RelayCommand(param => ExportarCsv());
+            IndicadorTipos = new ObservableCollection<string> { "IPCA", "IGP-M", "Selic" };
         }
+
+        private void ExportarCsv()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = $"{SelectedIndicador}-{DataInicio:dd-MM-yyyy}-{DataFim:dd-MM-yyyy}.csv";
+            saveFileDialog.Filter = "CSV file (*.csv)|*.csv";
+            saveFileDialog.DefaultExt = ".csv";
+            saveFileDialog.AddExtension = true;
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                StringBuilder csv = new StringBuilder();
+                csv.AppendLine("Indicador;Data;DataReferencia;Media;Mediana;DesvioPadrao;Minimo;Maximo;NumeroRespondentes;BaseCalculo");
+
+                foreach (var indicador in Indicadores)
+                {
+                    csv.AppendLine($"{indicador.Indicador};{indicador.Data:dd/MM/yyyy};{indicador.DataReferencia};{indicador.Media};{indicador.Mediana};{indicador.DesvioPadrao};{indicador.Minimo};{indicador.Maximo};{indicador.NumeroRespondentes};{indicador.BaseCalculo}");
+                }
+
+                File.WriteAllText(saveFileDialog.FileName, csv.ToString());
+            }
+        }
+
+
+
+
 
         private bool CanExecuteLoadData()
         {
@@ -86,6 +113,7 @@ namespace DesafioPolo.ViewModels
 
         private async Task LoadDataAsync()
         {
+            //Indicadores.Clear();
             var url = MontarUrl();
             using (HttpClient client = new HttpClient())
             {
@@ -93,7 +121,14 @@ namespace DesafioPolo.ViewModels
 
                 var responseObject = JsonConvert.DeserializeObject<ResponseObject>(response);
 
+                if (responseObject == null)
+                    return;
+
+                if (responseObject.Indicadores.Count == 0)
+                    return;
+
                 var indicadores = responseObject.Indicadores;
+
 
                 foreach (var indicador in indicadores)
                 {

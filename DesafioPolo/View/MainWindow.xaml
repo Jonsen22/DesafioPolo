@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DesafioPolo"
         xmlns:vm="clr-namespace:DesafioPolo.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="625" Width="800">
+        Title="Projeto Polo Capital" Height="625" Width="900" MinWidth="858" MinHeight="500" MaxWidth="858">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
@@ -22,18 +22,33 @@
             <ColumnDefinition Width="*" MinWidth="635" />
 
         </Grid.ColumnDefinitions>
-        <DataGrid Grid.Row="2" Grid.Column="0"  ItemsSource="{Binding Indicadores}" Margin="30,10,30,10"/>
-        <ComboBox Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="55,0,0,0"
+        <DataGrid  CanUserAddRows="False" AlternatingRowBackground="LightGray" AutoGenerateColumns="False" ItemsSource="{Binding Indicadores}" Grid.Row="2" Grid.Column="0"   Margin="30,10,30,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Indicador" Binding="{Binding Indicador}" />
+                <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat={}{0:dd/MM/yyyy}}" />
+                <DataGridTextColumn Header="Data Referência" Binding="{Binding DataReferencia}" />
+                <DataGridTextColumn Header="Média" Binding="{Binding Media}" />
+                <DataGridTextColumn Header="Mediana" Binding="{Binding Mediana}" />
+                <DataGridTextColumn Header="Desvio Padrão" Binding="{Binding DesvioPadrao}" />
+                <DataGridTextColumn Header="Mínimo" Binding="{Binding Minimo}" />
+                <DataGridTextColumn Header="Máximo" Binding="{Binding Maximo}" />
+                <DataGridTextColumn Header="Nº Respondentes" Binding="{Binding NumeroRespondentes}" />
+                <DataGridTextColumn Header="Base Cálculo" Binding="{Binding BaseCalculo}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <!--<DataGrid Grid.Row="2" Grid.Column="0"  ItemsSource="{Binding Indicadores}" Margin="30,10,30,10"/>-->
+        <ComboBox Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30,0,0,0"
                   ItemsSource="{Binding IndicadorTipos}" SelectedItem="{Binding SelectedIndicador}" Width="104" Height="22" />
-        <DatePicker Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Height="24" Margin="202,0,0,0" VerticalAlignment="Center" Width="143" 
+        <DatePicker Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Height="24" Margin="157,0,0,0" VerticalAlignment="Center" Width="143" 
                     SelectedDate="{Binding DataInicio}" />
-        <DatePicker Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Height="24" Margin="362,0,0,0" VerticalAlignment="Center" Width="143" 
+        <DatePicker Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Height="24" Margin="317,0,0,0" VerticalAlignment="Center" Width="143" 
                     SelectedDate="{Binding DataFim}" />
-        <Label Grid.Row="0" Content="Indicador" HorizontalAlignment="Left" Margin="55,10,0,0" VerticalAlignment="Top" Width="79" Height="26"/>
-        <Label Grid.Row="0" Content="Data Inicial" HorizontalAlignment="Left" Margin="202,10,0,0" VerticalAlignment="Top" Width="143" Height="26"/>
-        <Label Grid.Row="0" Content="Data Final" HorizontalAlignment="Left" Margin="362,10,0,0" VerticalAlignment="Top" Width="108" Height="26"/>
-        <Button Grid.Column="0" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="545,0,0,0"
+        <Label Grid.Row="0" Content="Indicador" HorizontalAlignment="Left" Margin="30,10,0,0" VerticalAlignment="Top" Width="79" Height="26"/>
+        <Label Grid.Row="0" Content="Data Inicial" HorizontalAlignment="Left" Margin="157,10,0,0" VerticalAlignment="Top" Width="143" Height="26"/>
+        <Label Grid.Row="0" Content="Data Final" HorizontalAlignment="Left" Margin="317,10,0,0" VerticalAlignment="Top" Width="108" Height="26"/>
+        <Button Grid.Column="0" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="500,0,0,0"
                 Command="{Binding LoadDataCommand}" Height="20" Width="44" Grid.Row="1" />
-        <Button Grid.Row="3" Grid.Column="0" Content="Exportar csv" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Height="20" Width="68" />
+        <Button Grid.Row="3" Grid.Column="0" Content="Exportar csv" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30,0,0,0" Height="20" Width="68" 
+                Command="{Binding ExportarCsvCommand}"/>
     </Grid>
 </Window>
