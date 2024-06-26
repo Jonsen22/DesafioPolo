@@ -1,4 +1,6 @@
-﻿using DesafioPolo.Model;
+﻿using DesafioPolo.Data;
+using DesafioPolo.Model;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
@@ -71,6 +73,8 @@ namespace DesafioPolo.ViewModels
 
         public ICommand LoadDataCommand { get; }
         public ICommand ExportarCsvCommand { get; set; }
+        public ICommand SaveDBCommand { get; set; }
+        public ICommand LoadDBCommand { get; set; }
 
         public MainViewModel()
         {
@@ -78,6 +82,9 @@ namespace DesafioPolo.ViewModels
             Indicadores = new ObservableCollection<IndicadorModel>();
             ExportarCsvCommand = new RelayCommand(param => ExportarCsv());
             IndicadorTipos = new ObservableCollection<string> { "IPCA", "IGP-M", "Selic" };
+            SaveDBCommand = new RelayCommand(async param => await SaveToDB());
+            LoadDBCommand = new RelayCommand(async param => await LoadDB());
+            LoadDataInitiate();
         }
 
         private void ExportarCsv()
@@ -102,18 +109,98 @@ namespace DesafioPolo.ViewModels
             }
         }
 
-
-
-
-
         private bool CanExecuteLoadData()
         {
             return !string.IsNullOrWhiteSpace(SelectedIndicador) && DataInicio.HasValue && DataFim.HasValue;
         }
 
+        private async void LoadDataInitiate()
+        {
+            using (var context = new AppDbContext())
+            {
+                var indicadoresDb = await context.Indicadores.ToListAsync();
+
+                foreach (var indicadorDb in indicadoresDb)
+                {
+                    var indicador = new IndicadorModel
+                    {
+                        Indicador = indicadorDb.Indicador,
+                        Data = indicadorDb.Data,
+                        DataReferencia = indicadorDb.DataReferencia,
+                        Media = indicadorDb.Media,
+                        Mediana = indicadorDb.Mediana,
+                        DesvioPadrao = indicadorDb.DesvioPadrao,
+                        Minimo = indicadorDb.Minimo,
+                        Maximo = indicadorDb.Maximo,
+                        NumeroRespondentes = (int)indicadorDb.NumeroRespondentes,
+                        BaseCalculo = indicadorDb.BaseCalculo
+                    };
+
+                    Indicadores.Add(indicador);
+                }
+            }
+        }
+
+        private async Task SaveToDB()
+        {
+            using (var context = new AppDbContext())
+            {
+                foreach (var indicador in Indicadores)
+                {
+                    if (!context.Indicadores.Any(i => i.Indicador == indicador.Indicador && i.Data.ToString() == indicador.Data.ToString() && i.DataReferencia == indicador.DataReferencia))
+                    {
+                        var indicadorDb = new IndicadorModelDB
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Indicador = indicador.Indicador,
+                            Data = indicador.Data,
+                            DataReferencia = indicador.DataReferencia,
+                            Media = indicador.Media,
+                            Mediana = indicador.Mediana,
+                            DesvioPadrao = indicador.DesvioPadrao,
+                            Minimo = indicador.Minimo,
+                            Maximo = indicador.Maximo,
+                            NumeroRespondentes = indicador.NumeroRespondentes,
+                            BaseCalculo = indicador.BaseCalculo
+                        };
+
+                        context.Indicadores.Add(indicadorDb);
+                    }
+                }
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private async Task LoadDB()
+        {
+            using (var context = new AppDbContext())
+            {
+                var indicadores = await context.Indicadores.ToListAsync();
+                Indicadores.Clear();
+                foreach (var indicador in indicadores)
+                {
+                    var indicadorModel = new IndicadorModel
+                    {
+                        Indicador = indicador.Indicador,
+                        Data = indicador.Data,
+                        DataReferencia = indicador.DataReferencia,
+                        Media = indicador.Media,
+                        Mediana = indicador.Mediana,
+                        DesvioPadrao = indicador.DesvioPadrao,
+                        Minimo = indicador.Minimo,
+                        Maximo = indicador.Maximo,
+                        NumeroRespondentes = (int)indicador.NumeroRespondentes,
+                        BaseCalculo = indicador.BaseCalculo
+                    };
+
+                    Indicadores.Add(indicadorModel);
+                }
+            }
+        }
+
         private async Task LoadDataAsync()
         {
-            //Indicadores.Clear();
+            Indicadores.Clear();
             var url = MontarUrl();
             using (HttpClient client = new HttpClient())
             {
@@ -143,26 +230,13 @@ namespace DesafioPolo.ViewModels
             return $"https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativaMercadoMensais?$filter=Indicador eq '{SelectedIndicador}' and Data ge '{DataInicio:yyyy-MM-dd}' and Data le '{DataFim:yyyy-MM-dd}'";
         }
 
-
         public class ResponseObject
         {
             [JsonProperty("value")]
             public List<IndicadorModel> Indicadores { get; set; }
         }
 
-        public class IndicadorModel
-        {
-            public string Indicador { get; set; }
-            public DateTime Data { get; set; }
-            public string DataReferencia { get; set; }
-            public double Media { get; set; }
-            public double Mediana { get; set; }
-            public double DesvioPadrao { get; set; }
-            public double Minimo { get; set; }
-            public double Maximo { get; set; }
-            public int NumeroRespondentes { get; set; }
-            public int BaseCalculo { get; set; }
-        }
+
     }
 }
 
