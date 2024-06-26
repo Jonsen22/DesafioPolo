@@ -116,6 +116,7 @@ namespace DesafioPolo.ViewModels
 
         private async void LoadDataInitiate()
         {
+            
             using (var context = new AppDbContext())
             {
                 var indicadoresDb = await context.Indicadores.ToListAsync();
@@ -138,6 +139,13 @@ namespace DesafioPolo.ViewModels
 
                     Indicadores.Add(indicador);
                 }
+
+                var lastDateDb = indicadoresDb.OrderByDescending(ind => ind.Data).FirstOrDefault();
+
+                if (lastDateDb == null)
+                    return;
+
+
             }
         }
 
@@ -201,33 +209,107 @@ namespace DesafioPolo.ViewModels
         private async Task LoadDataAsync()
         {
             Indicadores.Clear();
-            var url = MontarUrl();
-            using (HttpClient client = new HttpClient())
+            List<IndicadorModel> indicadoresDb = await LoadDataFromDbAsync();
+
+            var missingDateRanges = GetMissingDateRanges(indicadoresDb);
+
+            List<IndicadorModel> indicadoresApi = new List<IndicadorModel>();
+
+            if (missingDateRanges.Count > 0)
             {
-                var response = await client.GetStringAsync(url);
-
-                var responseObject = JsonConvert.DeserializeObject<ResponseObject>(response);
-
-                if (responseObject == null)
-                    return;
-
-                if (responseObject.Indicadores.Count == 0)
-                    return;
-
-                var indicadores = responseObject.Indicadores;
-
-
-                foreach (var indicador in indicadores)
+                foreach (var range in missingDateRanges)
                 {
-                    Indicadores.Add(indicador);
+                    var apiData = await LoadDataFromApiAsync(range.Item1, range.Item2);
+                    if (apiData != null && apiData.Count > 0)
+                    {
+                        indicadoresApi.AddRange(apiData);
+                    }
                 }
+            }
 
+            var allIndicadores = indicadoresDb.Concat(indicadoresApi).ToList();
+            foreach (var indicador in allIndicadores)
+            {
+                Indicadores.Add(indicador);
             }
         }
 
-        private string MontarUrl()
+        private async Task<List<IndicadorModel>> LoadDataFromDbAsync()
         {
-            return $"https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativaMercadoMensais?$filter=Indicador eq '{SelectedIndicador}' and Data ge '{DataInicio:yyyy-MM-dd}' and Data le '{DataFim:yyyy-MM-dd}'";
+            using (var context = new AppDbContext())
+            {
+                var indicadoresDb = await context.Indicadores
+                    .Where(i => i.Indicador == SelectedIndicador && i.Data >= DateOnly.FromDateTime(DataInicio.Value) && i.Data <= DateOnly.FromDateTime(DataFim.Value))
+                    .ToListAsync();
+
+                var indicadores = indicadoresDb.Select(indicadorDb => new IndicadorModel
+                {
+                    Indicador = indicadorDb.Indicador,
+                    Data = indicadorDb.Data,
+                    DataReferencia = indicadorDb.DataReferencia,
+                    Media = indicadorDb.Media,
+                    Mediana = indicadorDb.Mediana,
+                    DesvioPadrao = indicadorDb.DesvioPadrao,
+                    Minimo = indicadorDb.Minimo,
+                    Maximo = indicadorDb.Maximo,
+                    NumeroRespondentes = (int)indicadorDb.NumeroRespondentes,
+                    BaseCalculo = indicadorDb.BaseCalculo
+                }).ToList();
+
+                return indicadores;
+            }
+        }
+
+        private List<Tuple<DateOnly, DateOnly>> GetMissingDateRanges(List<IndicadorModel> indicadoresDb)
+        {
+            List<Tuple<DateOnly, DateOnly>> missingDateRanges = new List<Tuple<DateOnly, DateOnly>>();
+            
+
+            var existingDates = indicadoresDb.Select(i => i.Data).Distinct().ToList(); //data do banco de 20/05 até 31/05
+
+            DateOnly startDate = DateOnly.FromDateTime(DataInicio.Value);
+            DateOnly endDate = DateOnly.FromDateTime(DataFim.Value);
+
+            bool startDateExists = existingDates.Any(d => d <= startDate);
+            bool endDateExists = existingDates.Any(d => d >= endDate);
+
+            if (!startDateExists)
+            {
+                missingDateRanges.Add(Tuple.Create(startDate, existingDates.Min()));
+            }
+
+            if (!endDateExists)
+            {
+                missingDateRanges.Add(Tuple.Create(existingDates.Max(), endDate));
+            }
+
+            return missingDateRanges;
+        }
+
+        private async Task<List<IndicadorModel>> LoadDataFromApiAsync(DateOnly startDate, DateOnly endDate)
+        {
+            List<IndicadorModel> indicadores = new List<IndicadorModel>();
+
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetStringAsync(MontarUrl(startDate, endDate));
+                var responseObject = JsonConvert.DeserializeObject<ResponseObject>(response);
+
+                if (responseObject?.Indicadores != null)
+                {
+                    indicadores.AddRange(responseObject.Indicadores);
+                }
+            }
+
+            return indicadores;
+        }
+
+
+
+
+        private string MontarUrl(DateOnly startDate, DateOnly endDate)
+        {
+            return $"https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativaMercadoMensais?$filter=Indicador eq '{SelectedIndicador}' and Data ge '{startDate:yyyy-MM-dd}' and Data le '{endDate:yyyy-MM-dd}'";
         }
 
         public class ResponseObject
