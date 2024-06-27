@@ -48,11 +48,15 @@
         <Label Grid.Row="0" Content="Data Final" HorizontalAlignment="Left" Margin="317,10,0,0" VerticalAlignment="Top" Width="108" Height="26"/>
         <Button Grid.Column="0" Content="Ok" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="500,0,0,0"
                 Command="{Binding LoadDataCommand}" Height="20" Width="44" Grid.Row="1" />
+        <Button Grid.Column="0" Content="Limpar Grid" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="591,0,0,0"
+        Command="{Binding ClearGridCommand}" Height="20" Width="84" Grid.Row="1" />
         <Button Grid.Row="3" Grid.Column="0" Content="Exportar csv" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="760,3,0,0" Height="20" Width="68" 
                 Command="{Binding ExportarCsvCommand}"/>
         <Button Grid.Row="3" Grid.Column="0" Content="Salvar Banco" HorizontalAlignment="Left" Margin="30,3,0,0" VerticalAlignment="Top"
                 Command="{Binding SaveDBCommand}"/>
         <Button Grid.Row="3" Grid.Column="0" Content="Carregar Banco" HorizontalAlignment="Left" Margin="115,3,0,0" VerticalAlignment="Top"
         Command="{Binding LoadDBCommand}"/>
+        <Button Grid.Row="3" Grid.Column="0" Content="Gráfico" HorizontalAlignment="Left" Margin="228,3,0,0" VerticalAlignment="Top"
+            Command="{Binding OpenChartCommand}"/>
     </Grid>
 </Window>

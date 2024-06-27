@@ -1,14 +1,18 @@
 ﻿using DesafioPolo.Data;
 using DesafioPolo.Model;
+using DesafioPolo.View;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using OpenTK.Graphics.ES11;
 using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace DesafioPolo.ViewModels
@@ -20,6 +24,9 @@ namespace DesafioPolo.ViewModels
         private DateTime? _dataFim;
         private ObservableCollection<IndicadorModel> _indicadores;
         private ObservableCollection<string> _indicadorTipos;
+#pragma warning disable CS0169 // O campo "MainViewModel.graphView" nunca é usado
+        private GraphView graphView;
+#pragma warning restore CS0169 // O campo "MainViewModel.graphView" nunca é usado
 
         public string SelectedIndicador
         {
@@ -57,8 +64,6 @@ namespace DesafioPolo.ViewModels
             }
         }
 
-
-
         public ObservableCollection<IndicadorModel> Indicadores
         {
             get { return _indicadores; }
@@ -72,22 +77,33 @@ namespace DesafioPolo.ViewModels
         }
 
         public ICommand LoadDataCommand { get; }
-        public ICommand ExportarCsvCommand { get; set; }
+        public ICommand ExportCsvCommand { get; set; }
+        public ICommand ClearGridCommand { get; set; }
         public ICommand SaveDBCommand { get; set; }
         public ICommand LoadDBCommand { get; set; }
-
+        public ICommand OpenChartCommand { get; }
+#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
         public MainViewModel()
+#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
         {
             LoadDataCommand = new RelayCommand(async param => await LoadDataAsync(), param => CanExecuteLoadData());
             Indicadores = new ObservableCollection<IndicadorModel>();
-            ExportarCsvCommand = new RelayCommand(param => ExportarCsv());
+            ExportCsvCommand = new RelayCommand(param => ExportCsv());
+            ClearGridCommand = new RelayCommand(param => ClearGrid());
             IndicadorTipos = new ObservableCollection<string> { "IPCA", "IGP-M", "Selic" };
             SaveDBCommand = new RelayCommand(async param => await SaveToDB());
             LoadDBCommand = new RelayCommand(async param => await LoadDB());
+            OpenChartCommand = new RelayCommand(param => OpenChart());
             LoadDataInitiate();
         }
 
-        private void ExportarCsv()
+        private void ExportCsv()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.FileName = $"{SelectedIndicador}-{DataInicio:dd-MM-yyyy}-{DataFim:dd-MM-yyyy}.csv";
@@ -114,15 +130,21 @@ namespace DesafioPolo.ViewModels
             return !string.IsNullOrWhiteSpace(SelectedIndicador) && DataInicio.HasValue && DataFim.HasValue;
         }
 
+        private void ClearGrid()
+        {
+            Indicadores.Clear();
+        }
+
         private async void LoadDataInitiate()
         {
-            
+
             using (var context = new AppDbContext())
             {
                 var indicadoresDb = await context.Indicadores.ToListAsync();
 
                 foreach (var indicadorDb in indicadoresDb)
                 {
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
                     var indicador = new IndicadorModel
                     {
                         Indicador = indicadorDb.Indicador,
@@ -136,6 +158,7 @@ namespace DesafioPolo.ViewModels
                         NumeroRespondentes = (int)indicadorDb.NumeroRespondentes,
                         BaseCalculo = indicadorDb.BaseCalculo
                     };
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
 
                     Indicadores.Add(indicador);
                 }
@@ -155,7 +178,20 @@ namespace DesafioPolo.ViewModels
             {
                 foreach (var indicador in Indicadores)
                 {
-                    if (!context.Indicadores.Any(i => i.Indicador == indicador.Indicador && i.Data.ToString() == indicador.Data.ToString() && i.DataReferencia == indicador.DataReferencia))
+                    // Verifica se já existe um registro com os mesmos valores em todos os campos
+                    var existingIndicador = context.Indicadores.FirstOrDefault(i =>
+                        i.Indicador == indicador.Indicador &&
+                        i.Data == indicador.Data &&
+                        i.DataReferencia == indicador.DataReferencia &&
+                        i.Media == indicador.Media &&
+                        i.Mediana == indicador.Mediana &&
+                        i.DesvioPadrao == indicador.DesvioPadrao &&
+                        i.Minimo == indicador.Minimo &&
+                        i.Maximo == indicador.Maximo &&
+                        i.NumeroRespondentes == indicador.NumeroRespondentes &&
+                        i.BaseCalculo == indicador.BaseCalculo);
+
+                    if (existingIndicador == null)
                     {
                         var indicadorDb = new IndicadorModelDB
                         {
@@ -175,6 +211,7 @@ namespace DesafioPolo.ViewModels
                         context.Indicadores.Add(indicadorDb);
                     }
                 }
+
                 await context.SaveChangesAsync();
             }
         }
@@ -187,6 +224,7 @@ namespace DesafioPolo.ViewModels
                 Indicadores.Clear();
                 foreach (var indicador in indicadores)
                 {
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
                     var indicadorModel = new IndicadorModel
                     {
                         Indicador = indicador.Indicador,
@@ -200,6 +238,7 @@ namespace DesafioPolo.ViewModels
                         NumeroRespondentes = (int)indicador.NumeroRespondentes,
                         BaseCalculo = indicador.BaseCalculo
                     };
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
 
                     Indicadores.Add(indicadorModel);
                 }
@@ -238,10 +277,15 @@ namespace DesafioPolo.ViewModels
         {
             using (var context = new AppDbContext())
             {
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
                 var indicadoresDb = await context.Indicadores
                     .Where(i => i.Indicador == SelectedIndicador && i.Data >= DateOnly.FromDateTime(DataInicio.Value) && i.Data <= DateOnly.FromDateTime(DataFim.Value))
                     .ToListAsync();
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
 
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
                 var indicadores = indicadoresDb.Select(indicadorDb => new IndicadorModel
                 {
                     Indicador = indicadorDb.Indicador,
@@ -255,6 +299,7 @@ namespace DesafioPolo.ViewModels
                     NumeroRespondentes = (int)indicadorDb.NumeroRespondentes,
                     BaseCalculo = indicadorDb.BaseCalculo
                 }).ToList();
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
 
                 return indicadores;
             }
@@ -263,12 +308,23 @@ namespace DesafioPolo.ViewModels
         private List<Tuple<DateOnly, DateOnly>> GetMissingDateRanges(List<IndicadorModel> indicadoresDb)
         {
             List<Tuple<DateOnly, DateOnly>> missingDateRanges = new List<Tuple<DateOnly, DateOnly>>();
-            
 
-            var existingDates = indicadoresDb.Select(i => i.Data).Distinct().ToList(); //data do banco de 20/05 até 31/05
 
+            var existingDates = indicadoresDb.Select(i => i.Data).Distinct().ToList();
+
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
             DateOnly startDate = DateOnly.FromDateTime(DataInicio.Value);
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
             DateOnly endDate = DateOnly.FromDateTime(DataFim.Value);
+#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+
+            if (existingDates == null || existingDates.Count == 0)
+            {
+                missingDateRanges.Add(Tuple.Create(startDate, endDate));
+                return missingDateRanges;
+            }
+
 
             bool startDateExists = existingDates.Any(d => d <= startDate);
             bool endDateExists = existingDates.Any(d => d >= endDate);
@@ -286,13 +342,27 @@ namespace DesafioPolo.ViewModels
             return missingDateRanges;
         }
 
+        private void OpenChart()
+        {
+            var window = new Window
+            {
+                Title = "Visualização de Gráfico",
+                Content = new GraphView(),
+                Width = 800,
+                Height = 600,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            window.ShowDialog();
+        }
+
         private async Task<List<IndicadorModel>> LoadDataFromApiAsync(DateOnly startDate, DateOnly endDate)
         {
             List<IndicadorModel> indicadores = new List<IndicadorModel>();
 
             using (HttpClient client = new HttpClient())
             {
-                var response = await client.GetStringAsync(MontarUrl(startDate, endDate));
+                var response = await client.GetStringAsync(MountUrl(startDate, endDate));
                 var responseObject = JsonConvert.DeserializeObject<ResponseObject>(response);
 
                 if (responseObject?.Indicadores != null)
@@ -304,10 +374,9 @@ namespace DesafioPolo.ViewModels
             return indicadores;
         }
 
+     
 
-
-
-        private string MontarUrl(DateOnly startDate, DateOnly endDate)
+        private string MountUrl(DateOnly startDate, DateOnly endDate)
         {
             return $"https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativaMercadoMensais?$filter=Indicador eq '{SelectedIndicador}' and Data ge '{startDate:yyyy-MM-dd}' and Data le '{endDate:yyyy-MM-dd}'";
         }
@@ -315,10 +384,10 @@ namespace DesafioPolo.ViewModels
         public class ResponseObject
         {
             [JsonProperty("value")]
+#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
             public List<IndicadorModel> Indicadores { get; set; }
+#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
         }
-
-
     }
 }
 
