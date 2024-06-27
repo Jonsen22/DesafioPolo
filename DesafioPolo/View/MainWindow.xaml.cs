@@ -17,7 +17,6 @@ namespace DesafioPolo
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindow();
         }
 
     }

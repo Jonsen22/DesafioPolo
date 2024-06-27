@@ -14,18 +14,18 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using DesafioPolo.Model;
+using System.Collections.ObjectModel;
 
 namespace DesafioPolo.View
 {
-    /// <summary>
-    /// Lógica interna para GraphView.xaml
-    /// </summary>
+
     public partial class GraphView : UserControl
     {
-        public GraphView()
+        public GraphView(ObservableCollection<IndicadorModel> indicadores)
         {
             InitializeComponent();
-            DataContext = new GraphViewModel();
+            DataContext = new GraphViewModel(indicadores);
         }
 
         private void OnIndicadorChecked(object sender, RoutedEventArgs e)
@@ -33,21 +33,8 @@ namespace DesafioPolo.View
             var viewModel = DataContext as GraphViewModel;
             if (viewModel != null)
             {
-
                 viewModel.SelectedIndicador = (sender as RadioButton)?.Content.ToString();
-
-                viewModel.UpdateChart();
-            }
-        }
-
-        private void OnDataSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var viewModel = DataContext as GraphViewModel;
-            if (viewModel != null)
-            {
-                viewModel.SelectedDataReferencia = (sender as ComboBox)?.SelectedItem?.ToString();
-
-                viewModel.UpdateChart();
+                viewModel.UpdateData();
             }
         }
     }

@@ -12,81 +12,96 @@ namespace DesafioPolo.ViewModels
     public class GraphViewModel : ViewModelBase
     {
         private string _selectedIndicador;
-        private string _selectedDataReferencia;
-        private ObservableCollection<string> _dataReferencias;
+        private string _selectedData;
+        private ObservableCollection<string> _datas;
         private ObservableCollection<IndicadorModel> _indicadores;
 
         public string SelectedIndicador
         {
             get { return _selectedIndicador; }
-            set { SetProperty(ref _selectedIndicador, value); }
-        }
-
-        public string SelectedDataReferencia
-        {
-            get { return _selectedDataReferencia; }
-            set { SetProperty(ref _selectedDataReferencia, value); }
-        }
-
-        public ObservableCollection<string> DataReferencias
-        {
-            get { return _dataReferencias; }
-            set { SetProperty(ref _dataReferencias, value); }
-        }
-
-        public ObservableCollection<IndicadorModel> Indicadores
-        {
-            get { return _indicadores; }
-            set { SetProperty(ref _indicadores, value); }
-        }
-
-
-        public GraphViewModel()
-
-        {
-            DataReferencias = new ObservableCollection<string>();
-            Indicadores = new ObservableCollection<IndicadorModel>();
-            LoadData();
-        }
-
-        private void LoadData()
-        {
-            // Carregar dados dos indicadores (simulação)
-            Indicadores = new ObservableCollection<IndicadorModel>
+            set
             {
-               
-            };
-
-            var referencias = Indicadores.Select(ind => ind.DataReferencia).Distinct().OrderBy(d => d).ToList();
-            foreach (var referencia in referencias)
-            {
-                DataReferencias.Add(referencia);
-
+                if (SetProperty(ref _selectedIndicador, value))
+                {
+                    UpdateData();
+                    OnPropertyChanged(nameof(IsDataEnabled));
+                }
             }
         }
 
+        public string SelectedData
+        {
+            get { return _selectedData; }
+            set
+            {
+                if (SetProperty(ref _selectedData, value))
+                {
+                    UpdateChart();
+                }
+            }
+        }
+
+        public ObservableCollection<string> Datas
+        {
+            get { return _datas; }
+            set { SetProperty(ref _datas, value); }
+        }
+
+        public bool IsDataEnabled
+        {
+            get { return !string.IsNullOrEmpty(SelectedIndicador); }
+        }
+
+        public GraphViewModel(ObservableCollection<IndicadorModel> indicadores)
+        {
+            _indicadores = indicadores;
+        }
+
+        public void UpdateData()
+        {
+            if (string.IsNullOrEmpty(SelectedIndicador))
+            {
+                Datas = new ObservableCollection<string>(); // Limpa a lista
+                return;
+            }
+
+            var datas = _indicadores
+                .Where(ind => ind.Indicador == SelectedIndicador)
+                .Select(ind => ind.Data.ToString())
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+
+            Datas = new ObservableCollection<string>(datas);
+        }
+
+
         public void UpdateChart()
         {
-            if (string.IsNullOrEmpty(SelectedIndicador) || string.IsNullOrEmpty(SelectedDataReferencia))
+            if (string.IsNullOrEmpty(SelectedIndicador) || string.IsNullOrEmpty(SelectedData))
                 return;
 
-            var indicadoresFiltrados = Indicadores
-                .Where(ind => ind.Indicador == SelectedIndicador && ind.DataReferencia == SelectedDataReferencia)
+            var selectedDate = DateOnly.FromDateTime(DateTime.Parse(SelectedData));
+
+            var indicadoresFiltrados = _indicadores
+                .Where(ind => ind.Indicador == SelectedIndicador && ind.Data == selectedDate)
                 .OrderBy(ind => ind.Data)
                 .ToList();
 
             if (indicadoresFiltrados.Count == 0)
                 return;
 
-            var datas = indicadoresFiltrados.Select(ind => ind.Data.ToDateTime(TimeOnly.MinValue)).ToArray();
+            var datasReferencia = indicadoresFiltrados.Select(ind => DateTime.Parse(ind.DataReferencia)).ToArray();
             var medias = indicadoresFiltrados.Select(ind => ind.Media).ToArray();
 
-            // Atualizar o gráfico
-            //var graphView = App.Current.MainWindow.FindName("plot") as WpfPlot;
-            //graphView.Plot.Clear();
-            //graphView.Plot.Add.Scatter(datas.Select(d => d.ToOADate()).ToArray(), medias);
-            //graphView.Plot.Axes.AddBottomAxis();
-            //graphView.Refresh();
+            var graphView = App.Current.MainWindow.FindName("plot") as WpfPlot;
+            if (graphView != null)
+            {
+                graphView.Plot.Clear();
+                graphView.Plot.Add.Scatter(datasReferencia.Select(d => d.ToOADate()).ToArray(), medias);
+                //graphView.Plot.XAxis.DateTimeFormat(true);
+                graphView.Refresh();
+            }
         }
     }
 }

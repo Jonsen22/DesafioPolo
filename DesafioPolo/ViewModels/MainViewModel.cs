@@ -24,9 +24,6 @@ namespace DesafioPolo.ViewModels
         private DateTime? _dataFim;
         private ObservableCollection<IndicadorModel> _indicadores;
         private ObservableCollection<string> _indicadorTipos;
-#pragma warning disable CS0169 // O campo "MainViewModel.graphView" nunca é usado
-        private GraphView graphView;
-#pragma warning restore CS0169 // O campo "MainViewModel.graphView" nunca é usado
 
         public string SelectedIndicador
         {
@@ -82,15 +79,9 @@ namespace DesafioPolo.ViewModels
         public ICommand SaveDBCommand { get; set; }
         public ICommand LoadDBCommand { get; set; }
         public ICommand OpenChartCommand { get; }
-#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
-#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
-#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
-#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+
         public MainViewModel()
-#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
-#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
-#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
-#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
+
         {
             LoadDataCommand = new RelayCommand(async param => await LoadDataAsync(), param => CanExecuteLoadData());
             Indicadores = new ObservableCollection<IndicadorModel>();
@@ -144,7 +135,7 @@ namespace DesafioPolo.ViewModels
 
                 foreach (var indicadorDb in indicadoresDb)
                 {
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+
                     var indicador = new IndicadorModel
                     {
                         Indicador = indicadorDb.Indicador,
@@ -158,7 +149,7 @@ namespace DesafioPolo.ViewModels
                         NumeroRespondentes = (int)indicadorDb.NumeroRespondentes,
                         BaseCalculo = indicadorDb.BaseCalculo
                     };
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+
 
                     Indicadores.Add(indicador);
                 }
@@ -224,7 +215,7 @@ namespace DesafioPolo.ViewModels
                 Indicadores.Clear();
                 foreach (var indicador in indicadores)
                 {
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+
                     var indicadorModel = new IndicadorModel
                     {
                         Indicador = indicador.Indicador,
@@ -238,7 +229,7 @@ namespace DesafioPolo.ViewModels
                         NumeroRespondentes = (int)indicador.NumeroRespondentes,
                         BaseCalculo = indicador.BaseCalculo
                     };
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+
 
                     Indicadores.Add(indicadorModel);
                 }
@@ -277,15 +268,15 @@ namespace DesafioPolo.ViewModels
         {
             using (var context = new AppDbContext())
             {
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+
+
                 var indicadoresDb = await context.Indicadores
                     .Where(i => i.Indicador == SelectedIndicador && i.Data >= DateOnly.FromDateTime(DataInicio.Value) && i.Data <= DateOnly.FromDateTime(DataFim.Value))
                     .ToListAsync();
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
 
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+
+
+
                 var indicadores = indicadoresDb.Select(indicadorDb => new IndicadorModel
                 {
                     Indicador = indicadorDb.Indicador,
@@ -299,7 +290,7 @@ namespace DesafioPolo.ViewModels
                     NumeroRespondentes = (int)indicadorDb.NumeroRespondentes,
                     BaseCalculo = indicadorDb.BaseCalculo
                 }).ToList();
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+
 
                 return indicadores;
             }
@@ -312,12 +303,12 @@ namespace DesafioPolo.ViewModels
 
             var existingDates = indicadoresDb.Select(i => i.Data).Distinct().ToList();
 
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+
             DateOnly startDate = DateOnly.FromDateTime(DataInicio.Value);
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
-#pragma warning disable CS8629 // O tipo de valor de nulidade pode ser nulo.
+
+
             DateOnly endDate = DateOnly.FromDateTime(DataFim.Value);
-#pragma warning restore CS8629 // O tipo de valor de nulidade pode ser nulo.
+
 
             if (existingDates == null || existingDates.Count == 0)
             {
@@ -347,7 +338,7 @@ namespace DesafioPolo.ViewModels
             var window = new Window
             {
                 Title = "Visualização de Gráfico",
-                Content = new GraphView(),
+                Content = new GraphView(Indicadores),
                 Width = 800,
                 Height = 600,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
@@ -384,9 +375,7 @@ namespace DesafioPolo.ViewModels
         public class ResponseObject
         {
             [JsonProperty("value")]
-#pragma warning disable CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
             public List<IndicadorModel> Indicadores { get; set; }
-#pragma warning restore CS8618 // O campo não anulável precisa conter um valor não nulo ao sair do construtor. Considere declará-lo como anulável.
         }
     }
 }
