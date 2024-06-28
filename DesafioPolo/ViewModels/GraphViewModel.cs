@@ -96,7 +96,7 @@ namespace DesafioPolo.ViewModels
         {
             if (string.IsNullOrEmpty(SelectedIndicador))
             {
-                Datas = new ObservableCollection<string>(); // Limpa a lista
+                Datas = new ObservableCollection<string>(); 
                 return;
             }
 
