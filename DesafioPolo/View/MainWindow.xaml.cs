@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using DesafioPolo.View;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,6 +18,7 @@ namespace DesafioPolo
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
     }

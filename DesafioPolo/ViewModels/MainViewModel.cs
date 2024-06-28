@@ -4,7 +4,6 @@ using DesafioPolo.View;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using OpenTK.Graphics.ES11;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;

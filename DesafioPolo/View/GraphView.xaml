@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ScottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF" xmlns:viewmodels="clr-namespace:DesafioPolo.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:GraphViewModel}"
+            xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Wpf"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -15,11 +15,18 @@
             <RadioButton Name="IpcaRadioButton" Content="IPCA" GroupName="IndicadorGroup" Margin="5" Checked="OnIndicadorChecked"/>
             <RadioButton Name="IgpmRadioButton" Content="IGP-M" GroupName="IndicadorGroup" Margin="5" Checked="OnIndicadorChecked"/>
             <RadioButton Name="SelicRadioButton" Content="Selic" GroupName="IndicadorGroup" Margin="5" Checked="OnIndicadorChecked"/>
-            <ComboBox Name="DataComboBox" Width="200" Margin="5"
+            <ComboBox Name="DataComboBox" Width="151" Margin="5"
                       ItemsSource="{Binding Datas}"
                   SelectedItem="{Binding SelectedData}"
-                  IsEnabled="{Binding IsDataEnabled}"/>
+                  IsEnabled="{Binding IsDataEnabled}" Height="22"/>
+            <ComboBox ItemsSource="{Binding ValoresDisponiveis}"
+          SelectedItem="{Binding SelectedValor}"
+          VerticalAlignment="Center"
+          HorizontalAlignment="Left"
+          Margin="10"
+          Width="150"
+          Height="22"/>
         </StackPanel>
-        <ScottPlot:WpfPlot x:Name="plot" Grid.Row="1"/>
+        <oxy:PlotView x:Name="plot" Model="{Binding PlotModel}" Grid.Row="1" Margin="10,0,10,10"/>
     </Grid>
 </UserControl>

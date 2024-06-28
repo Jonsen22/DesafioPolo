@@ -1,6 +1,4 @@
-﻿using ScottPlot;
-using ScottPlot.WPF;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +26,11 @@ namespace DesafioPolo.View
             DataContext = new GraphViewModel(indicadores);
         }
 
+        public GraphView()
+        {
+            InitializeComponent();
+        }
+
         private void OnIndicadorChecked(object sender, RoutedEventArgs e)
         {
             var viewModel = DataContext as GraphViewModel;
@@ -35,6 +38,14 @@ namespace DesafioPolo.View
             {
                 viewModel.SelectedIndicador = (sender as RadioButton)?.Content.ToString();
                 viewModel.UpdateData();
+            }
+        }
+        private void OnDataSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var viewModel = DataContext as GraphViewModel;
+            if (viewModel != null)
+            {
+                viewModel.SelectedData = (sender as ComboBox)?.SelectedItem?.ToString();
             }
         }
     }
